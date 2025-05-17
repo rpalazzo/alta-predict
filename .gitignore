@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# HTML/HTM input files
+*.htm
+*.html
+
 # C extensions
 *.so
 
