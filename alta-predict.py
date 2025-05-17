@@ -18,7 +18,7 @@ You may optionally include a fudge factor using the `--fudge` argument.
 Output:
 The first column of the output table is the team ID.
 The following integer columns are the actual scores, and the decimal columns are the predicted scores.
-The second to last column is the sum of the scores, and the last column is the final team ranking. 
+The second to last column is the sum of the scores, and the last column is the final team ranking.
 
 MIT License
 Copyright (c) 2025 Robert Palazzo
@@ -317,7 +317,7 @@ if __name__ == "__main__":
                     )  # Use the last column (row_sum) to get the rank
 
                 # Print the updated scores table
-                #print("Predicted Scores Table:")
+                # print("Predicted Scores Table:")
                 for (
                     score_row
                 ) in scores_array:  # Renamed 'row' to 'score_row' for clarity
