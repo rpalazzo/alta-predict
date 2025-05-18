@@ -317,11 +317,13 @@ if __name__ == "__main__":
                     )  # Use the last column (row_sum) to get the rank
 
                 # Print the updated scores table
-                # print("Predicted Scores Table:")
-                for (
-                    score_row
-                ) in scores_array:  # Renamed 'row' to 'score_row' for clarity
-                    print("\t".join(map(str, score_row)))
+                for score_row in scores_array:
+                    # Format each value in the row to 2 decimal places if it's a float
+                    formatted_row = [
+                        f"{value:.2f}" if isinstance(value, float) else str(value)
+                        for value in score_row
+                    ]
+                    print("\t".join(formatted_row))
                 exit()
 
     except FileNotFoundError:
