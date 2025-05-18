@@ -119,8 +119,8 @@ def get_scores(soup):
             try:
                 pts_row_values.append(int(text))
             except ValueError:
-                 print(f"Error: get_scores() unable to convert '{text}' to an integer.")
-                 pts_row_values.append("-")  # Default value if conversion fails
+                print(f"Error: get_scores() unable to convert '{text}' to an integer.")
+                pts_row_values.append("-")  # Default value if conversion fails
 
         # Add the leading column to the row values
         if pts_row_values:
@@ -246,7 +246,7 @@ def predict_scores(schedule_table, scores_table, max_score):
             ]
 
             # Debug: Print the scores delta
-            print(f"Scores delta for Team {row[0]} against Team {opponent_row_index}: {scores_delta}")
+            # print(f"Scores delta for Team {row[0]} against Team {opponent_row_index}: {scores_delta}")
 
             # Calculate the average score delta
             score_delta = sum(scores_delta) / len(scores_delta) if scores_delta else 0
