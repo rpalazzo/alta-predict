@@ -119,8 +119,8 @@ def get_scores(soup):
             try:
                 pts_row_values.append(int(text))
             except ValueError:
-                # print(f"Warning: Unable to convert '{text}' to an integer.")
-                pts_row_values.append("-")  # Default value if conversion fails
+                 print(f"Error: get_scores() unable to convert '{text}' to an integer.")
+                 pts_row_values.append("-")  # Default value if conversion fails
 
         # Add the leading column to the row values
         if pts_row_values:
@@ -167,8 +167,8 @@ def predict_scores(schedule_table, scores_table, max_score):
             ),
             None,
         )
-        # print(f"Current team schedule for Team {row[0]}: {opposing_team_schedule}")
-        # print(f"Opposing team row: {opposing_team_schedule}")
+        # print(f"This team schedule for Team {row[0]}: {this_team_schedule}")
+        # print(f"Oppoent team schedule: {opponent_schedule}")
 
         if opponent_schedule:
             # Create a list of common opponents
@@ -183,7 +183,7 @@ def predict_scores(schedule_table, scores_table, max_score):
             ]
 
             # Debug: Print the common opponents
-            # print(f"Common opponents between Team {row[0]} and Team {opposing_team_id}: {common_opponents}")
+            # print(f"Common opponents between Team {row[0]} and Team {opponent}: {common_opponents}")
 
             # Create lists to store current and opponent common scores
             this_team_common_scores = []
@@ -213,7 +213,7 @@ def predict_scores(schedule_table, scores_table, max_score):
                     ]
                     this_team_common_scores.append(current_score)
 
-                # Find the index of the row in opponents_table that matches opposing_team_row
+                # Find the index of the row in opponents_table that matches oppoonent_schedule
                 opponent_row_index = next(
                     (
                         j
@@ -234,10 +234,10 @@ def predict_scores(schedule_table, scores_table, max_score):
                     opponent_common_scores.append(opponent_score)
 
             # Debug: Print the current and opponent common scores
-            # print(f"Current common scores for Team {row[0]}: {current_common_scores}")
+            # print(f"Current common scores for Team {row[0]}: {this_team_common_scores}")
             # print(f"Opponent common scores for Team {opposing_team_id}: {opponent_common_scores}")
 
-            # Subtract opponent_common_scores from current_common_scores
+            # Subtract opponent_common_scores from this_team_common_scores
             scores_delta = [
                 int(current) - int(opponent)
                 for current, opponent in zip(
@@ -246,7 +246,7 @@ def predict_scores(schedule_table, scores_table, max_score):
             ]
 
             # Debug: Print the scores delta
-            # print(f"Scores delta for Team {row[0]} against Team {opposing_team_id}: {scores_delta}")
+            print(f"Scores delta for Team {row[0]} against Team {opponent_row_index}: {scores_delta}")
 
             # Calculate the average score delta
             score_delta = sum(scores_delta) / len(scores_delta) if scores_delta else 0
@@ -262,6 +262,7 @@ def predict_scores(schedule_table, scores_table, max_score):
         else:
             # Debug: Print if no opposing team row is found
             print(f"No row found for opposing team_id: {opposing_team_id}")
+            exit(1)
 
     return scores_table
 
