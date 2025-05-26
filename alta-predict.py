@@ -119,8 +119,7 @@ def get_scores(soup):
             try:
                 pts_row_values.append(int(text))
             except ValueError:
-                print(f"Error: get_scores() unable to convert '{text}' to an integer.")
-                pts_row_values.append("-")  # Default value if conversion fails
+                pts_row_values.append("-")  # future games won't have a score, so insert a dash instead
 
         # Add the leading column to the row values
         if pts_row_values:
