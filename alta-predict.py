@@ -245,7 +245,7 @@ def predict_scores(schedule_table, scores_table, max_score):
             ]
 
             # Debug: Print the scores delta
-            # print(f"Scores delta for Team {row[0]} against Team {opponent_row_index}: {scores_delta}")
+            # print(f"Scores delta for Team {row[0]} against Team {schedule_table[opponent_row_index][0]}: {scores_delta}")
 
             # Calculate the average score delta
             score_delta = sum(scores_delta) / len(scores_delta) if scores_delta else 0
