@@ -17,5 +17,9 @@ The first column of the output table is the team ID.<br>
 The following integer columns are the actual scores, and the decimal columns are the predicted scores.<br>
 The second to last column is the sum of the scores, and the last column is the final team ranking.<br>
 
+## Notes
+Scores and scheduled oponents are in the table ending with "_tblRosters".
+
+
 MIT License<br>
 Copyright (c) 2025 Robert Palazzo
