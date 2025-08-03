@@ -26,23 +26,27 @@ Copyright (c) 2025 Robert Palazzo
 
 import argparse
 from bs4 import BeautifulSoup
+import logging
+from os import getcwd
+
+logging.basicConfig(filename='alta-predict.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filemode='w')
 
 
 def get_max_score(soup):
 
+    # Parse the header.  If `Pickleball` found max_score is 12; otherwise max_socre is 5 for tennis.
     team_header_title = soup.find(class_="team-header__title")
     if team_header_title:
         title_text = team_header_title.get_text(strip=True)
-        # print(f"Team Header Title: {title_text}")
 
         if "Pickleball" in title_text:
             max_score = 12
-            # print(f"Pickleball max score: {max_score}")
+            logging.info(f"Found `Pickleball` in header.  Using max score: {max_score}")
         else:
             max_score = 5
-            # print(f"Tennis max score: {max_score}")
+            logging.info(f"`Pickleball` not found in header.  Using tennis max_score: {max_score}")
     else:
-        print("No element with class 'team-header__title' found.")
+        print("ERROR: No element with class 'team-header__title' found.")
         exit(1)
 
     return max_score
@@ -56,10 +60,9 @@ def get_schedule(soup):
         print("No table with id ending in '_tblRosters' found.")
         exit(1)
 
-    # Initialize the second table for "TeamValue" rows
     schedule_table = []
 
-    # Find all rows in the roster_table
+    # Iterate through all rows in the roster_table
     rows = roster_table.find_all("tr")
     for row in rows:
         # Initialize the row values with the leading column
@@ -90,6 +93,7 @@ def get_schedule(soup):
 
 
 def get_scores(soup):
+
     # Find the table with id ending in "_tblRosters"
     roster_table = soup.find("table", id=lambda x: x and x.endswith("_tblRosters"))
     if not roster_table:
@@ -136,7 +140,6 @@ def get_scores(soup):
 def predict_scores(schedule_table, scores_table, max_score):
 
     # Iterate through the scores table to calculate projected scores
-    #
     for i, row in enumerate(scores_table):
         # Find the next_game column (first column with a value of "-")
         try:
@@ -166,8 +169,6 @@ def predict_scores(schedule_table, scores_table, max_score):
             ),
             None,
         )
-        # print(f"This team schedule for Team {row[0]}: {this_team_schedule}")
-        # print(f"Oppoent team schedule: {opponent_schedule}")
 
         if opponent_schedule:
             # Create a list of common opponents
@@ -180,9 +181,6 @@ def predict_scores(schedule_table, scores_table, max_score):
                 and opponent
                 != "-"  # Check if the opponent exists in opposing_team_row and is not "-"
             ]
-
-            # Debug: Print the common opponents
-            # print(f"Common opponents between Team {row[0]} and Team {opponent}: {common_opponents}")
 
             # Create lists to store current and opponent common scores
             this_team_common_scores = []
@@ -238,23 +236,24 @@ def predict_scores(schedule_table, scores_table, max_score):
 
             # Subtract opponent_common_scores from this_team_common_scores
             scores_delta = [
-                int(current) - int(opponent)
+                current - opponent
                 for current, opponent in zip(
                     this_team_common_scores, opponent_common_scores
                 )
             ]
 
-            # Debug: Print the scores delta
-            # print(f"Scores delta for Team {row[0]} against Team {schedule_table[opponent_row_index][0]}: {scores_delta}")
+            logging.debug(f"Common scores for this team {row[0]}: {this_team_common_scores}")
+            logging.debug(f"Common scores for opponent team {schedule_table[opponent_row_index][0]}: {opponent_common_scores}")
 
             # Calculate the average score delta
             score_delta = sum(scores_delta) / len(scores_delta) if scores_delta else 0
+            logging.info(f"Scores delta for Team {row[0]} against Team {schedule_table[opponent_row_index][0]}: {scores_delta}.  Average: {score_delta}")
 
             # Calculate the projected score
             projected_score = FUDGE * score_delta / 2.0 + max_score / 2.0
             projected_score = min(
                 max(projected_score, 0), max_score
-            )  # Ensure the projected score is within bounds
+            )  # Ensure the projected score is within [0, max_score] bounds
 
             # Update the next_game cell in the scores_table
             scores_table[i][next_game_index] = round(projected_score, 2)
@@ -278,9 +277,12 @@ if __name__ == "__main__":
 
     # Parse the arguments
     args = parser.parse_args()
+    cwd = getcwd()
+    logging.info(f"Input: file://{cwd}/{args.file_name}")
 
     # Use the FUDGE value from the arguments
     FUDGE = args.fudge
+    logging.info(f"Fudge factor set to: {FUDGE}")
 
     try:
         # Read the HTML file
@@ -328,5 +330,5 @@ if __name__ == "__main__":
 
     except FileNotFoundError:
         print(f"File '{args.file_name}' not found.")
-    except Exception as error:  # Renamed 'e' to 'error' for consistency
+    except Exception as error:  
         print(f"An error occurred: {error}")
