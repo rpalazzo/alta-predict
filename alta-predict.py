@@ -29,7 +29,12 @@ from bs4 import BeautifulSoup
 import logging
 from os import getcwd
 
-logging.basicConfig(filename='alta-predict.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filemode='w')
+logging.basicConfig(
+    filename="alta-predict.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    filemode="w",
+)
 
 
 def get_max_score(soup):
@@ -44,7 +49,9 @@ def get_max_score(soup):
             logging.info(f"Found `Pickleball` in header.  Using max score: {max_score}")
         else:
             max_score = 5
-            logging.info(f"`Pickleball` not found in header.  Using tennis max_score: {max_score}")
+            logging.info(
+                f"`Pickleball` not found in header.  Using tennis max_score: {max_score}"
+            )
     else:
         print("ERROR: No element with class 'team-header__title' found.")
         exit(1)
@@ -123,7 +130,9 @@ def get_scores(soup):
             try:
                 pts_row_values.append(int(text))
             except ValueError:
-                pts_row_values.append("-")  # future games won't have a score, so insert a dash instead
+                pts_row_values.append(
+                    "-"
+                )  # future games won't have a score, so insert a dash instead
 
         # Add the leading column to the row values
         if pts_row_values:
@@ -230,10 +239,6 @@ def predict_scores(schedule_table, scores_table, max_score):
                     ]
                     opponent_common_scores.append(opponent_score)
 
-            # Debug: Print the current and opponent common scores
-            # print(f"Current common scores for Team {row[0]}: {this_team_common_scores}")
-            # print(f"Opponent common scores for Team {opposing_team_id}: {opponent_common_scores}")
-
             # Subtract opponent_common_scores from this_team_common_scores
             scores_delta = [
                 current - opponent
@@ -242,12 +247,22 @@ def predict_scores(schedule_table, scores_table, max_score):
                 )
             ]
 
-            logging.debug(f"Common scores for this team {row[0]}: {this_team_common_scores}")
-            logging.debug(f"Common scores for opponent team {schedule_table[opponent_row_index][0]}: {opponent_common_scores}")
-
             # Calculate the average score delta
             score_delta = sum(scores_delta) / len(scores_delta) if scores_delta else 0
-            logging.info(f"Scores delta for Team {row[0]} against Team {schedule_table[opponent_row_index][0]}: {scores_delta}.  Average: {score_delta}")
+            try:
+                logging.debug(
+                    f"Common scores for this team {row[0]}: {this_team_common_scores}"
+                )
+                logging.debug(
+                    f"Common scores for opponent team {schedule_table[opponent_row_index][0]}: {opponent_common_scores}"
+                )
+                logging.info(
+                    f"Scores delta for Team {row[0]} against Team {schedule_table[opponent_row_index][0]}: {scores_delta}.  Average: {score_delta}"
+                )
+            except Exception as e:
+                logging.warning(
+                    f"There are no common opponents at this point in the season: {e}"
+                )
 
             # Calculate the projected score
             projected_score = FUDGE * score_delta / 2.0 + max_score / 2.0
@@ -330,5 +345,5 @@ if __name__ == "__main__":
 
     except FileNotFoundError:
         print(f"File '{args.file_name}' not found.")
-    except Exception as error:  
+    except Exception as error:
         print(f"An error occurred: {error}")
