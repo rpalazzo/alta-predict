@@ -241,7 +241,7 @@ def predict_scores(schedule_table, scores_table, max_score):
 
             # Subtract opponent_common_scores from this_team_common_scores
             scores_delta = [
-                current - opponent
+                round(current - opponent, 4)
                 for current, opponent in zip(
                     this_team_common_scores, opponent_common_scores
                 )
@@ -257,7 +257,7 @@ def predict_scores(schedule_table, scores_table, max_score):
                     f"Common scores for opponent team {schedule_table[opponent_row_index][0]}: {opponent_common_scores}"
                 )
                 logging.info(
-                    f"Scores delta for Team {row[0]} against Team {schedule_table[opponent_row_index][0]}: {scores_delta}.  Average: {score_delta}"
+                    f"Scores delta for Team {row[0]} against Team {schedule_table[opponent_row_index][0]}: {scores_delta}.  Average: {round(score_delta, 3)}"
                 )
             except Exception as e:
                 logging.warning(
