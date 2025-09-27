@@ -53,6 +53,7 @@ def get_max_score(soup):
                 f"`Pickleball` not found in header.  Using tennis max_score: {max_score}"
             )
     else:
+        logging.error("No element with class 'team-header__title' found.")
         print("ERROR: No element with class 'team-header__title' found.")
         exit(1)
 
@@ -64,7 +65,8 @@ def get_schedule(soup):
     # Find the table with id ending in "_tblRosters"
     roster_table = soup.find("table", id=lambda x: x and x.endswith("_tblRosters"))
     if not roster_table:
-        print("No table with id ending in '_tblRosters' found.")
+        logging.error("No table with id ending in '_tblRosters' found.")
+        print("ERROR: No table with id ending in '_tblRosters' found.")
         exit(1)
 
     schedule_table = []
@@ -91,10 +93,15 @@ def get_schedule(soup):
         if opponents_row_values:
             schedule_table.append([leading_column] + opponents_row_values)
 
-    # Print the team table
-    # print("Schedule Table:")
-    # for row in schedule_table:
-    #    print("\t".join(map(str, row)))
+    # Log the schedule table
+    logging.debug("Schedule Table:")
+    for score_row in schedule_table:
+    # Format each value in the row to 2 decimal places if it's a float
+        formatted_row = [
+        f"{value:.2f}" if isinstance(value, float) else str(value)
+        for value in score_row
+        ]
+        logging.debug("\t".join(formatted_row)) 
 
     return schedule_table
 
@@ -104,7 +111,8 @@ def get_scores(soup):
     # Find the table with id ending in "_tblRosters"
     roster_table = soup.find("table", id=lambda x: x and x.endswith("_tblRosters"))
     if not roster_table:
-        print("No table with id ending in '_tblRosters' found.")
+        logging.error("No table with id ending in '_tblRosters' found.")    
+        print("ERROR: No table with id ending in '_tblRosters' found.")
         return
 
     scores_table = []
@@ -142,6 +150,16 @@ def get_scores(soup):
     # print("Score Table:")
     # for row in scores_table:
     #    print("\t".join(map(str, row)))
+
+    # Log the scores_table
+    logging.debug("Scores Table:")
+    for score_row in scores_table:
+    # Format each value in the row to 2 decimal places if it's a float
+        formatted_row = [
+        f"{value:.2f}" if isinstance(value, float) else str(value)
+        for value in score_row
+        ]
+        logging.debug("\t".join(formatted_row)) 
 
     return scores_table
 
@@ -273,7 +291,7 @@ def predict_scores(schedule_table, scores_table, max_score):
             # Update the next_game cell in the scores_table
             scores_table[i][next_game_index] = round(projected_score, 2)
         else:
-            # Debug: Print if no opposing team row is found
+            logging.error(f"No row found for opposing team_id: {opposing_team_id}")
             print(f"No row found for opposing team_id: {opposing_team_id}")
             exit(1)
 
@@ -289,16 +307,28 @@ if __name__ == "__main__":
     parser.add_argument(
         "--fudge", type=float, default=1.0, help="Optional fudge factor (default: 1.0)"
     )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Set the logging level (default: INFO)",
+    )
 
     # Parse the arguments
     args = parser.parse_args()
     cwd = getcwd()
+
     logging.info(f"Input: file://{cwd}/{args.file_name}")
 
     # Use the FUDGE value from the arguments
     FUDGE = args.fudge
     logging.info(f"Fudge factor set to: {FUDGE}")
 
+    # Set logging level based on argument
+    logging.getLogger().setLevel(getattr(logging, args.log_level.upper()))
+    logging.info(f"Logging level set to: {args.log_level.upper()}")
+    
     try:
         # Read the HTML file
         with open(args.file_name, "r") as file:
@@ -344,6 +374,8 @@ if __name__ == "__main__":
                 exit()
 
     except FileNotFoundError:
+        logging.error(f"File '{args.file_name}' not found.")
         print(f"File '{args.file_name}' not found.")
     except Exception as error:
+        logging.error(f"An error occurred: {error}")
         print(f"An error occurred: {error}")
