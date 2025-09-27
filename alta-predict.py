@@ -29,13 +29,6 @@ from bs4 import BeautifulSoup
 import logging
 from os import getcwd
 
-logging.basicConfig(
-    filename="alta-predict.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    filemode="w",
-)
-
 
 def get_max_score(soup):
 
@@ -303,6 +296,13 @@ if __name__ == "__main__":
     # Parse the arguments
     args = parser.parse_args()
     cwd = getcwd()
+
+    logging.basicConfig(
+        filename="alta-predict.log",
+        level=args.log_level.upper(),
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        filemode="w",
+    )
 
     logging.info(f"Input: file://{cwd}/{args.file_name}")
 
