@@ -95,13 +95,8 @@ def get_schedule(soup):
 
     # Log the schedule table
     logging.debug("Schedule Table:")
-    for score_row in schedule_table:
-    # Format each value in the row to 2 decimal places if it's a float
-        formatted_row = [
-        f"{value:.2f}" if isinstance(value, float) else str(value)
-        for value in score_row
-        ]
-        logging.debug("\t".join(formatted_row)) 
+    for schedule_row in schedule_table:
+        logging.debug("\t".join(map(str, schedule_row)))
 
     return schedule_table
 
@@ -111,7 +106,7 @@ def get_scores(soup):
     # Find the table with id ending in "_tblRosters"
     roster_table = soup.find("table", id=lambda x: x and x.endswith("_tblRosters"))
     if not roster_table:
-        logging.error("No table with id ending in '_tblRosters' found.")    
+        logging.error("No table with id ending in '_tblRosters' found.")
         print("ERROR: No table with id ending in '_tblRosters' found.")
         return
 
@@ -146,20 +141,10 @@ def get_scores(soup):
         if pts_row_values:
             scores_table.append([leading_column] + pts_row_values)
 
-    # Print the table
-    # print("Score Table:")
-    # for row in scores_table:
-    #    print("\t".join(map(str, row)))
-
     # Log the scores_table
     logging.debug("Scores Table:")
     for score_row in scores_table:
-    # Format each value in the row to 2 decimal places if it's a float
-        formatted_row = [
-        f"{value:.2f}" if isinstance(value, float) else str(value)
-        for value in score_row
-        ]
-        logging.debug("\t".join(formatted_row)) 
+        logging.debug("\t".join(map(str, score_row)))
 
     return scores_table
 
@@ -328,7 +313,7 @@ if __name__ == "__main__":
     # Set logging level based on argument
     logging.getLogger().setLevel(getattr(logging, args.log_level.upper()))
     logging.info(f"Logging level set to: {args.log_level.upper()}")
-    
+
     try:
         # Read the HTML file
         with open(args.file_name, "r") as file:
